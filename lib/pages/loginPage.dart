@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:bordered_text/bordered_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_shark_tank/common/colors.dart';
@@ -8,6 +9,8 @@ import 'package:virtual_shark_tank/common/fonts.dart';
 import 'package:virtual_shark_tank/common/images.dart';
 
 import '../common/routes.dart';
+
+String dropdownValue = 'Male';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -18,6 +21,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool loginBox = false;
+  String username = '';
+  String email = '';
+  String pass = '';
+  DateTime dateOfBirth = DateTime.now();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,6 +144,9 @@ class _LoginPageState extends State<LoginPage> {
               fontSize: 24,
             ),
             cursorColor: AppColors.white,
+            onChanged: (String v) {
+              username = v;
+            },
             decoration: InputDecoration(
               label: Text(
                 "USERNAME",
@@ -172,6 +182,9 @@ class _LoginPageState extends State<LoginPage> {
               color: AppColors.white,
               fontSize: 24,
             ),
+            onChanged: (String v) {
+              email = v;
+            },
             cursorColor: AppColors.white,
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
@@ -209,6 +222,9 @@ class _LoginPageState extends State<LoginPage> {
               color: AppColors.white,
               fontSize: 24,
             ),
+            onChanged: (String v) {
+              pass = v;
+            },
             cursorColor: AppColors.white,
             decoration: InputDecoration(
               label: Text(
@@ -239,7 +255,12 @@ class _LoginPageState extends State<LoginPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              DOBpicker(constraints: constraints),
+              DOBpicker(
+                constraints: constraints,
+                onChange: (DateTime t) {
+                  dateOfBirth = t;
+                },
+              ),
               GenderPicker(constraints: constraints),
             ],
           ),
@@ -249,6 +270,14 @@ class _LoginPageState extends State<LoginPage> {
         ),
         InkWell(
           onTap: () {
+            Map user = {
+              'name': username,
+              'email': email,
+              'pass': pass,
+              'dob': dateOfBirth,
+              'gender': dropdownValue,
+            };
+            print(user);
             Navigator.pushNamed(context, AppRoutes.onboarding);
           },
           child: Container(
@@ -333,7 +362,7 @@ class _LoginPageState extends State<LoginPage> {
             cursorColor: AppColors.white,
             decoration: InputDecoration(
               label: Text(
-                "EMAIL/USERNAME",
+                "EMAIL",
                 style: AppFonts.bebasNeue.copyWith(
                   color: AppColors.white,
                   fontSize: 30,
@@ -454,7 +483,7 @@ class GenderPicker extends StatefulWidget {
 
 class _GenderPickerState extends State<GenderPicker> {
   final List<String> items = ["Male", "Female", "Other", "Rather Not Say"];
-  String dropdownValue = "Male";
+  // String dropdownValue = "Male";
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -523,8 +552,10 @@ class _GenderPickerState extends State<GenderPicker> {
 
 class DOBpicker extends StatefulWidget {
   final BoxConstraints constraints;
+  final Function(DateTime) onChange;
   const DOBpicker({
     required this.constraints,
+    required this.onChange,
     Key? key,
   }) : super(key: key);
 
